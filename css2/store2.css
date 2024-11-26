@@ -1,0 +1,219 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+    /*background-image: url(../images/bg.png);*/
+    /*background-size: cover; !* Ensures the image covers the entire page *!*/
+    /*background-position: center; !* Centers the image *!*/
+    /*background-repeat: no-repeat; !* Prevents the image from repeating *!*/
+    /*background-attachment: fixed; !* Keeps the background fixed while scrolling *!*/
+
+}
+
+/* Navbar Styles */
+.navbar {
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 100%;
+    z-index: 100;
+    transition: background 0.3s ease;
+}
+
+.navbar .navbar-brand img {
+    width: 120px;
+}
+
+.navbar-nav .nav-item .nav-link {
+    color: #333;
+    font-weight: bold;
+    margin: 0 10px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-item .nav-link:hover {
+    color: #089da1;
+}
+
+.navbar-toggler {
+    border-color: #089da1;
+}
+
+.navbar-toggler-icon {
+    background-color: #089da1;
+}
+
+.navbar .btn {
+    margin-left: 10px;
+    border-radius: 5px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.navbar .btn-warning {
+    background: #ffc107;
+    color: #000;
+    border: none;
+}
+
+.navbar .btn-warning:hover {
+    background: #089da1;
+    color: #fff;
+}
+
+.navbar .btn-primary {
+    background: #089da1;
+    border: none;
+}
+
+.navbar .btn-primary:hover {
+    background: #066c7b;
+}
+
+/* Cart Icon */
+#cart-icon {
+    width: 30px;
+    margin-left: 15px;
+}
+
+#cart-total {
+    color: #333;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+/* Main Content Styling */
+.container {
+    margin-top: 120px;
+}
+
+/* Utility Classes */
+.text-highlight {
+    color: #089da1;
+}
+
+/* Footer Styles */
+footer {
+    background: #f8f9fa;
+    padding: 20px 0;
+    text-align: center;
+    color: #333;
+    font-size: 14px;
+    border-top: 2px solid #089da1;
+}
+
+footer a {
+    text-decoration: none;
+    color: #089da1;
+    font-weight: bold;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar-brand img {
+        width: 100px;
+    }
+
+    #cart-icon {
+        width: 25px;
+    }
+
+    .navbar-nav .nav-item {
+        margin: 5px 0;
+    }
+}
+
+
+
+/* Container for Featured Books */
+.featured_boks .featured_book_box {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid with columns */
+    gap: 20px; /* Space between grid items */
+    padding: 0 30px;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+
+/* Individual Book Card */
+.featured_boks .featured_book_card {
+    width: 100%; /* Ensure cards stretch to match container width */
+    max-width: 400px; /* Set a maximum width for consistent size */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    text-align: center;
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.featured_boks .featured_book_card:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Book Image */
+.featured_boks .featured_book_card .featurde_book_img img {
+    width: 150px;
+    height: 220px;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+/* Book Info */
+.featured_boks .featured_book_card .featurde_book_tag h2 {
+    font-size: 22px;
+    color: #089da1;
+    margin: 10px 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+.featured_boks .featured_book_card .featurde_book_tag .writer {
+    color: #777;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.featured_boks .featured_book_card .featurde_book_tag .categories {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.featured_boks .featured_book_card .featurde_book_tag .book_price {
+    font-size: 18px;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.featured_boks .featured_book_card .featurde_book_tag .book_price sub {
+    font-weight: normal;
+    font-size: 14px;
+    color: #999;
+}
+
+/* Button */
+.featured_boks .featured_book_card .featurde_book_tag .f_btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border: none;
+    background-color: #089da1;
+    color: #fff;
+    font-size: 16px;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.featured_boks .featured_book_card .featurde_book_tag .f_btn:hover {
+    background-color: #077f84;
+}

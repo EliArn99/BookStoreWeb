@@ -1,0 +1,33 @@
+.profile-container {
+    max-width: 600px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.profile-container h1 {
+    text-align: center;
+    color: #4CAF50;
+}
+
+.profile-container p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+.profile-container .btn {
+    display: block;
+    margin: 20px auto;
+    text-align: center;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.profile-container .btn:hover {
+    background-color: #45a049;
+}
