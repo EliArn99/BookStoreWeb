@@ -1,0 +1,18 @@
+{% extends 'books/main.html' %}
+{% load static %}
+{% block content %}
+    <link rel="stylesheet" href="{% static 'css2/blog3.css' %}">
+
+<h1>Your personal Blog</h1>
+<a href="{% url 'blog-create' %}">Create New Blog Post</a>
+<ul>
+    {% for post in posts %}
+        <li>
+            <a href="{% url 'blog-detail' post.pk %}">{{ post.title }}</a> by {{ post.author }}
+            <p>Created on: {{ post.created_at|date:"F j, Y, g:i a" }}</p>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+

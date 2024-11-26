@@ -1,0 +1,38 @@
+{% extends 'books/main.html' %}
+
+{% block head %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css2/main2.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="featured_boks">
+    <h1>Featured Books</h1>
+
+    <div class="featured_book_box">
+        {% for product in products %}
+            <div class="featured_book_card">
+                <div class="featurde_book_img">
+                    <img src="{{ product.imageURL }}" alt="{{ product.name }}">
+                </div>
+
+                <div class="featurde_book_tag">
+                    <h2>{{ product.name }}</h2>
+                    <p class="writer">{{ product.author|default:"Unknown Author" }}</p>
+                    <div class="categories">{{ product.categories|default:"Various" }}</div>
+                    <p class="book_price">
+                        ${{ product.price|floatformat:2 }}
+                        <sub>
+                            <del>{{ product.original_price|floatformat:2|default_if_none:"" }}</del>
+                        </sub>
+                    </p>
+                    <button data-product="{{ product.id }}" data-action="add"
+                            class="btn btn-outline-secondary add-btn update-cart">Add to Cart
+                    </button>
+                    <a href="#" class="f_btn">Learn More</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

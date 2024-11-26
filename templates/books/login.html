@@ -1,0 +1,21 @@
+{% block content %}
+    {% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css2/login2.css' %}?v=1.0">
+<div class="container">
+    <h2>Log In</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required>
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+        <button type="submit">Log In</button>
+    </form>
+    <span>Don't have an account?</span>
+    <span><a href="{% url 'register' %}"> Sign up here</a></span>
+
+</div>
+
+
+
+{% endblock %}
