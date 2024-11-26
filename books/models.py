@@ -2,6 +2,8 @@ from django.db import models
 
 from django.contrib.auth.models import User  # ->
 from django.urls import reverse
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 # -> One-to-one relationship to the User model
@@ -9,6 +11,16 @@ class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=200, null=True)
     email = models.CharField(max_length=200, null=True)
+
+    @receiver(post_save, sender=User)
+    def create_customer(sender, instance, created, **kwargs):
+        if created:  # Only create a Customer for newly created Users
+            Customer.objects.create(user=instance)
+
+    @receiver(post_save, sender=User)
+    def save_customer(sender, instance, **kwargs):
+        if hasattr(instance, 'customer'):  # Ensure the Customer instance exists
+            instance.customer.save()
 
     def __str__(self):
         return self.name
@@ -71,7 +83,7 @@ class OrderItem(models.Model):
 
     def get_total(self):
         total = self.product.price * self.quantity
-        return total
+        return round(total, 2)
 
 
 class ShippingAddress(models.Model):
@@ -87,5 +99,17 @@ class ShippingAddress(models.Model):
         return self.address
 
 
+# models.py
 
+class BlogPost(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return reverse('blog-list')
