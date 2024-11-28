@@ -26,10 +26,21 @@
                             <del>{{ product.original_price|floatformat:2|default_if_none:"" }}</del>
                         </sub>
                     </p>
-                    <button data-product="{{ product.id }}" data-action="add"
-                            class="btn btn-outline-secondary add-btn update-cart">Add to Cart
-                    </button>
-                    <a href="#" class="f_btn">Learn More</a>
+
+
+                        <!-- Add to Cart Button -->
+                        <button data-product="{{ product.id }}" data-action="add"
+                                class="btn btn-outline-secondary add-btn update-cart">Add to Cart
+
+                        </button>
+
+                    {% if user.is_authenticated %}
+                        <!-- Add to Blog Button -->
+                        <a href="{% url 'blog-create' %}" class="f_btn">Add to blog</a>
+                    {% else %}
+                        <!-- Message for Unauthenticated Users -->
+                        <p class="text-danger">Login to add this book to your blog!</p>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}
