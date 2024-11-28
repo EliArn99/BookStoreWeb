@@ -20,25 +20,31 @@
 
             <!-- Dynamic Cart Items -->
             {% for item in items %}
-                <div class="cart-row">
-                    <div style="flex:2"><img class="row-image" src="{{ item.product.imageURL }}"
-                                             alt="{{ item.product.name }}"></div>
-                    <div style="flex:2"><p>{{ item.product.name }}</p></div>
-                    <div style="flex:1"><p>${{ item.get_total | floatformat:2 }}</p></div>
-                    <div style="flex:1">
-                        <p class="quantity">{{ item.quantity }}</p>
-                        <div class="quantity">
-                            <img data-product="{{ item.product.id }}" data-action="add" class="chg-quantity update-cart"
-                                 src="{% static  'images/3+arrow-up.png' %}">
+    <div class="cart-row">
+        <div style="flex:2">
+            <img class="row-image" src="{{ item.product.imageURL }}" alt="{{ item.product.name }}">
+        </div>
+        <div style="flex:2">
+            <p>{{ item.product.name }}</p>
+        </div>
+        <div style="flex:1">
+            <p>${{ item.product.price|floatformat:2 }}</p>
+        </div>
+        <div style="flex:1">
+            <p class="quantity">{{ item.quantity }}</p>
+            <div class="quantity">
+                <img data-product="{{ item.product.id }}" data-action="add"
+                     class="chg-quantity update-cart" src="{% static 'images/3+arrow-up.png' %}">
+                <img data-product="{{ item.product.id }}" data-action="remove"
+                     class="chg-quantity update-cart" src="{% static 'images/2+arrow-down.png' %}">
+            </div>
+        </div>
+        <div style="flex:1">
+            <p>${{ item.get_total|floatformat:2 }}</p>
+        </div>
+    </div>
+{% endfor %}
 
-                            <img data-product="{{ item.product.id }}" data-action="remove"
-                                 class="chg-quantity update-cart"
-                                 src="{% static  'images/2+arrow-down.png' %}">
-                        </div>
-                    </div>
-                    <div style="flex:1"><p>${{ item.get_total }}</p></div>
-                </div>
-            {% endfor %}
 
         </div>
 
@@ -48,11 +54,12 @@
 
             <div class="summary-item total">
                 <p>Total</p>
-                <p>{{ order.get_cart_total|floatformat:2 }}</p>
+                <p>{{ order.get_cart_total|floatformat:2 }}$</p>
             </div>
             <button class="checkout-btn">Proceed to Checkout</button>
 
             <script>
+
                 document.querySelector('.checkout-btn').addEventListener('click', function () {
                     window.location.href = "{% url 'checkout' %}";
                 });
