@@ -1,9 +1,9 @@
 from django.http import JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from BookWeb_demo.books.models import Product, OrderItem, ShippingAddress, Customer
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import CustomUserCreationForm, BlogPostForm
+from .forms import CustomUserCreationForm, BlogPostForm, CustomerForm, OrderForm, ProductForm
 import json
 import datetime
 from django.shortcuts import render
@@ -16,18 +16,22 @@ from .models import BlogPost
 
 def store(request):
     if request.user.is_authenticated:
-        # Ensure the customer instance exists
-        customer, created = Customer.objects.get_or_create(user=request.user)
+        customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:
-        items = []
-        order = {'get_cart_total': 0, 'get_cart_items': 0}
-        cartItems = order['get_cart_items']
+        try:
+            cart = json.loads(request.COOKIES.get('cart', '{}'))
+        except json.JSONDecodeError:
+            cart = {}
+
+        cartItems = sum(item['quantity'] for item in cart.values())
 
     products = Product.objects.all()
-    context = {'products': products, 'cartItems': cartItems}
+    context = {
+        'products': products,
+        'cartItems': cartItems
+    }
     return render(request, 'books/store.html', context)
 
 
@@ -38,9 +42,32 @@ def cart(request):
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:
+        try:
+            cart = json.loads(request.COOKIES.get('cart', '{}'))  # Retrieve cart from cookies
+        except json.JSONDecodeError:
+            cart = {}
+
         items = []
-        order = {'get_cart_total': 0, 'get_cart_items': 0}
-        cartItems = order['get_cart_items']
+        order = {'get_cart_total': 0, 'get_cart_items': 0, 'shipping': False}
+        cartItems = 0
+
+        for productId, details in cart.items():
+            try:
+                product = Product.objects.get(id=productId)
+                total = product.price * details['quantity']
+
+                cartItems += details['quantity']
+
+                items.append({
+                    'product': product,
+                    'quantity': details['quantity'],
+                    'get_total': total
+                })
+
+                order['get_cart_total'] += total
+                order['get_cart_items'] = cartItems
+            except Product.DoesNotExist:
+                continue
 
     context = {'items': items, 'order': order, 'cartItems': cartItems}
     return render(request, 'books/cart.html', context)
@@ -54,7 +81,6 @@ def checkout(request):
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:
-        # Create empty cart for now for non-logged in user
         items = []
         order = {'get_cart_total': 0, 'get_cart_items': 0, 'shipping': False}
         cartItems = order['get_cart_items']
@@ -63,17 +89,12 @@ def checkout(request):
     return render(request, 'books/checkout.html', context)
 
 
-# def blog(request):
-#     context = {}
-#     return render(request, 'books/blog.html', context)
-
-
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('login')  # Replace with your login URL
+            return redirect('login')
     else:
         form = CustomUserCreationForm()
     return render(request, 'books/register.html', {'form': form})
@@ -86,10 +107,9 @@ def user_login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('store')  # Redirect to your home page or dashboard
+            return redirect('store')
         else:
             messages.error(request, "Invalid username or password.")
-    # Add a message for users redirected to the login page
     return render(request, 'books/login.html')
 
 
@@ -154,30 +174,26 @@ def processOrder(request):
     return JsonResponse('Payment compete!', safe=False)
 
 
-
 class ProfileDetailView(LoginRequiredMixin, DetailView):
     model = Customer
-    template_name = 'books/profile_detail.html'  # Create this template
+    template_name = 'books/profile_detail.html'
     context_object_name = 'profile'
 
     def get_object(self):
-        # Return the current user's profile
         return self.request.user.customer
 
-# List view for all blog posts
+
 class BlogPostListView(ListView):
     model = BlogPost
     template_name = 'books/blog_list.html'
     context_object_name = 'posts'
 
 
-# Detail view for a single blog post
 class BlogPostDetailView(DetailView):
     model = BlogPost
     template_name = 'books/blog_detail.html'
 
 
-# Create view for new blog posts
 class BlogPostCreateView(LoginRequiredMixin, CreateView):
     model = BlogPost
     form_class = BlogPostForm
@@ -188,7 +204,6 @@ class BlogPostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-# Update view for editing blog posts
 class BlogPostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = BlogPost
     form_class = BlogPostForm
@@ -207,3 +222,48 @@ class BlogPostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         blog_post = self.get_object()  # Fetch the blog post being deleted
         return self.request.user == blog_post.author  # Only allow the author to delete
+
+
+def manage_order(request, pk=None):
+    if pk:
+        order = get_object_or_404(Order, pk=pk)
+        form = OrderForm(instance=order)
+    else:
+        form = OrderForm()
+
+    if request.method == 'POST':
+        form = OrderForm(request.POST, instance=order if pk else None)
+        if form.is_valid():
+            form.save()
+            return redirect('store')  # Redirect to a relevant page
+
+    return render(request, 'books/manage_order.html', {'form': form})
+
+
+def manage_product(request, pk=None):
+    if pk:
+        product = get_object_or_404(Product, pk=pk)
+        form = ProductForm(instance=product)
+    else:
+        form = ProductForm()
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product if pk else None)
+        if form.is_valid():
+            form.save()
+            return redirect('store')
+
+    return render(request, 'books/manage_product.html', {'form': form})
+
+
+def update_customer(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+    form = CustomerForm(instance=customer)
+
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()
+            return redirect('profile-detail')
+
+    return render(request, 'books/update_customer.html', {'form': form})
