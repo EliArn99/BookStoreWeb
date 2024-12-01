@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'BookWeb_demo.books'
+    'BookWeb_demo.books',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -68,6 +69,12 @@ TEMPLATES = [
         },
     },
 ]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
 
 WSGI_APPLICATION = 'BookWeb_demo.wsgi.application'
 
