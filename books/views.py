@@ -1,20 +1,50 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotAllowed, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
-from BookWeb_demo.books.models import Product, OrderItem, ShippingAddress, Customer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.viewsets import ModelViewSet
+
+from BookWeb_demo.books.models import OrderItem, ShippingAddress, Customer
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import CustomUserCreationForm, BlogPostForm, CustomerForm, OrderForm, ProductForm
 import json
 import datetime
 from django.shortcuts import render
-from .models import Order
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import BlogPost
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Product, Order, BlogPost
+from .serializers import ProductSerializer, OrderSerializer, BlogPostSerializer
+
+
+# def store(request):
+#     if request.user.is_authenticated:
+#         customer = request.user.customer
+#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
+#         cartItems = order.get_cart_items
+#     else:
+#         try:
+#             cart = json.loads(request.COOKIES.get('cart', '{}'))
+#         except json.JSONDecodeError:
+#             cart = {}
+#
+#         cartItems = sum(item['quantity'] for item in cart.values())
+#
+#     products = Product.objects.all()
+#     context = {
+#         'products': products,
+#         'cartItems': cartItems
+#     }
+#     return render(request, 'books/store.html', context)
 
 def store(request):
+    if request.method != 'GET':
+        return HttpResponseNotAllowed(['GET'])  # Restrict to GET
+
     if request.user.is_authenticated:
         customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
@@ -210,7 +240,7 @@ class BlogPostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = 'books/blog_form.html'
 
     def test_func(self):
-        blog_post = self.get_object()  # Fetch the blog post being edited
+        blog_post = self.get_object()
         return self.request.user == blog_post.author  # Only allow the author to edit
 
 
@@ -241,11 +271,11 @@ def manage_order(request, pk=None):
 
 
 def manage_product(request, pk=None):
-    if pk:
-        product = get_object_or_404(Product, pk=pk)
-        form = ProductForm(instance=product)
-    else:
-        form = ProductForm()
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return HttpResponseForbidden("Only staff members can access this page.")
+
+    product = get_object_or_404(Product, pk=pk) if pk else None
+    form = ProductForm(instance=product) if pk else ProductForm()
 
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product if pk else None)
@@ -267,3 +297,39 @@ def update_customer(request, pk):
             return redirect('profile-detail')
 
     return render(request, 'books/update_customer.html', {'form': form})
+
+
+class ProductList(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request):
+        products = Product.objects.all()
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return Response({"detail": "Authentication credentials were not provided."}, status=401)
+
+        serializer = ProductSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BlogPostList(APIView):
+    def get(self, request):
+        blog_posts = BlogPost.objects.all()
+        serializer = BlogPostSerializer(blog_posts, many=True)
+        return Response(serializer.data)
+
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+
+class BlogPostViewSet(ModelViewSet):
+    queryset = BlogPost.objects.all()
+    serializer_class = BlogPostSerializer
