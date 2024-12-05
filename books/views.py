@@ -1,4 +1,4 @@
-from django.http import JsonResponse, HttpResponseNotAllowed, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
@@ -18,7 +18,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Product, Order, BlogPost
-from .serializers import ProductSerializer, OrderSerializer, BlogPostSerializer
+from .serializers import ProductSerializer, BlogPostSerializer
+from .utils import cookieCart, cartData, guestOrder
 
 
 # def store(request):
@@ -27,11 +28,7 @@ from .serializers import ProductSerializer, OrderSerializer, BlogPostSerializer
 #         order, created = Order.objects.get_or_create(customer=customer, complete=False)
 #         cartItems = order.get_cart_items
 #     else:
-#         try:
-#             cart = json.loads(request.COOKIES.get('cart', '{}'))
-#         except json.JSONDecodeError:
-#             cart = {}
-#
+#         cart = json.loads(request.COOKIES.get('cart', '{}'))
 #         cartItems = sum(item['quantity'] for item in cart.values())
 #
 #     products = Product.objects.all()
@@ -40,115 +37,99 @@ from .serializers import ProductSerializer, OrderSerializer, BlogPostSerializer
 #         'cartItems': cartItems
 #     }
 #     return render(request, 'books/store.html', context)
+#
+#
+# def cart(request):
+#     if request.user.is_authenticated:
+#         customer = request.user.customer
+#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
+#         items = order.orderitem_set.all()
+#         cartItems = order.get_cart_items
+#     else:
+#         try:
+#             cart = json.loads(request.COOKIES.get('cart', '{}'))  # Retrieve cart from cookies
+#         except json.JSONDecodeError:
+#             cart = {}
+#
+#         items = []
+#         order = {'get_cart_total': 0, 'get_cart_items': 0, 'shipping': False}
+#         cartItems = 0
+#
+#         for productId, details in cart.items():
+#             try:
+#                 product = Product.objects.get(id=productId)
+#                 total = product.price * details['quantity']
+#
+#                 cartItems += details['quantity']
+#
+#                 items.append({
+#                     'product': product,
+#                     'quantity': details['quantity'],
+#                     'get_total': total
+#                 })
+#
+#                 order['get_cart_total'] += total
+#                 order['get_cart_items'] = cartItems
+#             except Product.DoesNotExist:
+#                 continue
+#
+#     context = {'items': items, 'order': order, 'cartItems': cartItems}
+#     return render(request, 'books/cart.html', context)
+
 
 def store(request):
-    if request.method != 'GET':
-        return HttpResponseNotAllowed(['GET'])  # Restrict to GET
-
-    if request.user.is_authenticated:
-        customer = request.user.customer
-        order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        cartItems = order.get_cart_items
-    else:
-        try:
-            cart = json.loads(request.COOKIES.get('cart', '{}'))
-        except json.JSONDecodeError:
-            cart = {}
-
-        cartItems = sum(item['quantity'] for item in cart.values())
-
-    products = Product.objects.all()
-    context = {
-        'products': products,
-        'cartItems': cartItems
-    }
-    return render(request, 'books/store.html', context)
-
-
-def cart(request):
     if request.user.is_authenticated:
         customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:
-        try:
-            cart = json.loads(request.COOKIES.get('cart', '{}'))  # Retrieve cart from cookies
-        except json.JSONDecodeError:
-            cart = {}
+        cookieData = cookieCart(request)
+        cartItems = cookieData['cartItems']
+        order = cookieData['order']
+        items = cookieData['items']
 
-        items = []
-        order = {'get_cart_total': 0, 'get_cart_items': 0, 'shipping': False}
-        cartItems = 0
+    products = Product.objects.all()
+    context = {'products': products, 'cartItems': cartItems}
+    return render(request, 'books/store.html', context)
 
-        for productId, details in cart.items():
-            try:
-                product = Product.objects.get(id=productId)
-                total = product.price * details['quantity']
 
-                cartItems += details['quantity']
-
-                items.append({
-                    'product': product,
-                    'quantity': details['quantity'],
-                    'get_total': total
-                })
-
-                order['get_cart_total'] += total
-                order['get_cart_items'] = cartItems
-            except Product.DoesNotExist:
-                continue
+def cart(request):
+    data = cartData(request)
+    cartItems = data['cartItems']
+    order = data['order']
+    items = data['items']
 
     context = {'items': items, 'order': order, 'cartItems': cartItems}
     return render(request, 'books/cart.html', context)
 
 
+# @csrf_exempt
+# def checkout(request):
+#     if request.user.is_authenticated:
+#         customer = request.user.customer
+#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
+#         items = order.orderitem_set.all()
+#         cartItems = order.get_cart_items
+#     else:
+#         items = []
+#         order = {'get_cart_total': 0, 'get_cart_items': 0, 'shipping': False}
+#         cartItems = order['get_cart_items']
+#
+#     context = {'items': items, 'order': order, 'cartItems': cartItems}
+#     return render(request, 'books/checkout.html', context)
 @csrf_exempt
 def checkout(request):
-    if request.user.is_authenticated:
-        customer = request.user.customer
-        order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        items = order.orderitem_set.all()
-        cartItems = order.get_cart_items
-    else:
-        items = []
-        order = {'get_cart_total': 0, 'get_cart_items': 0, 'shipping': False}
-        cartItems = order['get_cart_items']
+    data = cartData(request)
+    cartItems = data['cartItems']
+    order = data['order']
+    items = data['items']
 
     context = {'items': items, 'order': order, 'cartItems': cartItems}
     return render(request, 'books/checkout.html', context)
 
 
-def register(request):
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'books/register.html', {'form': form})
-
-
-def user_login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('store')
-        else:
-            messages.error(request, "Invalid username or password.")
-    return render(request, 'books/login.html')
-
-
-def user_logout(request):
-    logout(request)
-    messages.success(request, "You have been logged out.")
-    return redirect('login')
-
-
+# Update Item View: Add or remove items from the cart (for authenticated users).
 def updateItem(request):
     data = json.loads(request.body)
     productId = data['productId']
@@ -175,6 +156,93 @@ def updateItem(request):
     return JsonResponse('Item was added', safe=False)
 
 
+# Process Order View: Handle payment processing and saving shipping address.
+
+
+def register(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('store')
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'books/register.html', {'form': form})
+
+
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('store')
+        else:
+            messages.error(request, "Invalid username or password.")
+    return render(request, 'books/login.html')
+
+
+def user_logout(request):
+    logout(request)
+    messages.success(request, "You have been logged out.")
+    return redirect('store')
+
+
+# def updateItem(request):
+#     data = json.loads(request.body)
+#     productId = data['productId']
+#     action = data['action']
+#     print('Action:', action)
+#     print('Product:', productId)
+#
+#     customer = request.user.customer
+#     product = Product.objects.get(id=productId)
+#     order, created = Order.objects.get_or_create(customer=customer, complete=False)
+#
+#     orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
+#
+#     if action == 'add':
+#         orderItem.quantity = (orderItem.quantity + 1)
+#     elif action == 'remove':
+#         orderItem.quantity = (orderItem.quantity - 1)
+#
+#     orderItem.save()
+#
+#     if orderItem.quantity <= 0:
+#         orderItem.delete()
+#
+#     return JsonResponse('Item was added', safe=False)
+
+
+# @csrf_exempt
+# def processOrder(request):
+#     transaction_id = datetime.datetime.now().timestamp()
+#     data = json.loads(request.body)
+#
+#     if request.user.is_authenticated:
+#         customer = request.user.customer
+#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
+#         total = float(data['form']['total'])
+#         order.transaction_id = transaction_id
+#
+#         if total == order.get_cart_total:
+#             order.complete = True
+#         order.save()
+#
+#         if order.shipping == True:
+#             ShippingAddress.objects.create(
+#                 customer=customer,
+#                 order=order,
+#                 address=data['shipping']['address'],
+#                 city=data['shipping']['city'],
+#                 state=data['shipping']['state'],
+#                 zipcode=data['shipping']['zipcode'],
+#             )
+#     else:
+#         print("User in not logged in..")
+#     return JsonResponse('Payment compete!', safe=False)
+
 @csrf_exempt
 def processOrder(request):
     transaction_id = datetime.datetime.now().timestamp()
@@ -183,25 +251,27 @@ def processOrder(request):
     if request.user.is_authenticated:
         customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        total = float(data['form']['total'])
-        order.transaction_id = transaction_id
-
-        if total == order.get_cart_total:
-            order.complete = True
-        order.save()
-
-        if order.shipping == True:
-            ShippingAddress.objects.create(
-                customer=customer,
-                order=order,
-                address=data['shipping']['address'],
-                city=data['shipping']['city'],
-                state=data['shipping']['state'],
-                zipcode=data['shipping']['zipcode'],
-            )
     else:
-        print("User in not logged in..")
-    return JsonResponse('Payment compete!', safe=False)
+        customer, order = guestOrder(request, data)
+
+    total = float(data['form']['total'])
+    order.transaction_id = transaction_id
+
+    if total == order.get_cart_total:
+        order.complete = True
+    order.save()
+
+    if order.shipping == True:
+        ShippingAddress.objects.create(
+            customer=customer,
+            order=order,
+            address=data['shipping']['address'],
+            city=data['shipping']['city'],
+            state=data['shipping']['state'],
+            zipcode=data['shipping']['zipcode'],
+        )
+
+    return JsonResponse('Payment submitted..', safe=False)
 
 
 class ProfileDetailView(LoginRequiredMixin, DetailView):
@@ -333,3 +403,11 @@ class ProductViewSet(ModelViewSet):
 class BlogPostViewSet(ModelViewSet):
     queryset = BlogPost.objects.all()
     serializer_class = BlogPostSerializer
+
+
+def book_details(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    context = {
+        'product': product,
+    }
+    return render(request, 'books/book-details.html', context)
