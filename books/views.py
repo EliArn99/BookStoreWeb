@@ -1,5 +1,6 @@
 from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse_lazy
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
 
@@ -20,61 +21,6 @@ from rest_framework import status
 from .models import Product, Order, BlogPost
 from .serializers import ProductSerializer, BlogPostSerializer
 from .utils import cookieCart, cartData, guestOrder
-
-
-# def store(request):
-#     if request.user.is_authenticated:
-#         customer = request.user.customer
-#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
-#         cartItems = order.get_cart_items
-#     else:
-#         cart = json.loads(request.COOKIES.get('cart', '{}'))
-#         cartItems = sum(item['quantity'] for item in cart.values())
-#
-#     products = Product.objects.all()
-#     context = {
-#         'products': products,
-#         'cartItems': cartItems
-#     }
-#     return render(request, 'books/store.html', context)
-#
-#
-# def cart(request):
-#     if request.user.is_authenticated:
-#         customer = request.user.customer
-#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
-#         items = order.orderitem_set.all()
-#         cartItems = order.get_cart_items
-#     else:
-#         try:
-#             cart = json.loads(request.COOKIES.get('cart', '{}'))  # Retrieve cart from cookies
-#         except json.JSONDecodeError:
-#             cart = {}
-#
-#         items = []
-#         order = {'get_cart_total': 0, 'get_cart_items': 0, 'shipping': False}
-#         cartItems = 0
-#
-#         for productId, details in cart.items():
-#             try:
-#                 product = Product.objects.get(id=productId)
-#                 total = product.price * details['quantity']
-#
-#                 cartItems += details['quantity']
-#
-#                 items.append({
-#                     'product': product,
-#                     'quantity': details['quantity'],
-#                     'get_total': total
-#                 })
-#
-#                 order['get_cart_total'] += total
-#                 order['get_cart_items'] = cartItems
-#             except Product.DoesNotExist:
-#                 continue
-#
-#     context = {'items': items, 'order': order, 'cartItems': cartItems}
-#     return render(request, 'books/cart.html', context)
 
 
 def store(request):
@@ -104,20 +50,6 @@ def cart(request):
     return render(request, 'books/cart.html', context)
 
 
-# @csrf_exempt
-# def checkout(request):
-#     if request.user.is_authenticated:
-#         customer = request.user.customer
-#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
-#         items = order.orderitem_set.all()
-#         cartItems = order.get_cart_items
-#     else:
-#         items = []
-#         order = {'get_cart_total': 0, 'get_cart_items': 0, 'shipping': False}
-#         cartItems = order['get_cart_items']
-#
-#     context = {'items': items, 'order': order, 'cartItems': cartItems}
-#     return render(request, 'books/checkout.html', context)
 @csrf_exempt
 def checkout(request):
     data = cartData(request)
@@ -129,7 +61,6 @@ def checkout(request):
     return render(request, 'books/checkout.html', context)
 
 
-# Update Item View: Add or remove items from the cart (for authenticated users).
 def updateItem(request):
     data = json.loads(request.body)
     productId = data['productId']
@@ -154,9 +85,6 @@ def updateItem(request):
         orderItem.delete()
 
     return JsonResponse('Item was added', safe=False)
-
-
-# Process Order View: Handle payment processing and saving shipping address.
 
 
 def register(request):
@@ -189,60 +117,6 @@ def user_logout(request):
     return redirect('store')
 
 
-# def updateItem(request):
-#     data = json.loads(request.body)
-#     productId = data['productId']
-#     action = data['action']
-#     print('Action:', action)
-#     print('Product:', productId)
-#
-#     customer = request.user.customer
-#     product = Product.objects.get(id=productId)
-#     order, created = Order.objects.get_or_create(customer=customer, complete=False)
-#
-#     orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
-#
-#     if action == 'add':
-#         orderItem.quantity = (orderItem.quantity + 1)
-#     elif action == 'remove':
-#         orderItem.quantity = (orderItem.quantity - 1)
-#
-#     orderItem.save()
-#
-#     if orderItem.quantity <= 0:
-#         orderItem.delete()
-#
-#     return JsonResponse('Item was added', safe=False)
-
-
-# @csrf_exempt
-# def processOrder(request):
-#     transaction_id = datetime.datetime.now().timestamp()
-#     data = json.loads(request.body)
-#
-#     if request.user.is_authenticated:
-#         customer = request.user.customer
-#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
-#         total = float(data['form']['total'])
-#         order.transaction_id = transaction_id
-#
-#         if total == order.get_cart_total:
-#             order.complete = True
-#         order.save()
-#
-#         if order.shipping == True:
-#             ShippingAddress.objects.create(
-#                 customer=customer,
-#                 order=order,
-#                 address=data['shipping']['address'],
-#                 city=data['shipping']['city'],
-#                 state=data['shipping']['state'],
-#                 zipcode=data['shipping']['zipcode'],
-#             )
-#     else:
-#         print("User in not logged in..")
-#     return JsonResponse('Payment compete!', safe=False)
-
 @csrf_exempt
 def processOrder(request):
     transaction_id = datetime.datetime.now().timestamp()
@@ -274,56 +148,6 @@ def processOrder(request):
     return JsonResponse('Payment submitted..', safe=False)
 
 
-class ProfileDetailView(LoginRequiredMixin, DetailView):
-    model = Customer
-    template_name = 'books/profile_detail.html'
-    context_object_name = 'profile'
-
-    def get_object(self):
-        return self.request.user.customer
-
-
-class BlogPostListView(ListView):
-    model = BlogPost
-    template_name = 'books/blog_list.html'
-    context_object_name = 'posts'
-
-
-class BlogPostDetailView(DetailView):
-    model = BlogPost
-    template_name = 'books/blog_detail.html'
-
-
-class BlogPostCreateView(LoginRequiredMixin, CreateView):
-    model = BlogPost
-    form_class = BlogPostForm
-    template_name = 'books/blog_form.html'
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
-
-
-class BlogPostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = BlogPost
-    form_class = BlogPostForm
-    template_name = 'books/blog_form.html'
-
-    def test_func(self):
-        blog_post = self.get_object()
-        return self.request.user == blog_post.author  # Only allow the author to edit
-
-
-class BlogPostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = BlogPost
-    template_name = 'books/blog_confirm_delete.html'
-    success_url = '/blogs/'  # Redirect to the blog list after deletion
-
-    def test_func(self):
-        blog_post = self.get_object()  # Fetch the blog post being deleted
-        return self.request.user == blog_post.author  # Only allow the author to delete
-
-
 def manage_order(request, pk=None):
     if pk:
         order = get_object_or_404(Order, pk=pk)
@@ -335,7 +159,7 @@ def manage_order(request, pk=None):
         form = OrderForm(request.POST, instance=order if pk else None)
         if form.is_valid():
             form.save()
-            return redirect('store')  # Redirect to a relevant page
+            return redirect('store')
 
     return render(request, 'books/manage_order.html', {'form': form})
 
@@ -367,6 +191,62 @@ def update_customer(request, pk):
             return redirect('profile-detail')
 
     return render(request, 'books/update_customer.html', {'form': form})
+
+
+class ProfileDetailView(LoginRequiredMixin, DetailView):
+    model = Customer
+    template_name = 'books/profile_detail.html'
+    context_object_name = 'profile'
+
+    def get_object(self):
+        return self.request.user.customer
+
+
+class BlogPostListView(ListView):
+    model = BlogPost
+    template_name = 'books/blog_list.html'
+    context_object_name = 'posts'
+
+
+class BlogPostDetailView(DetailView):
+    model = BlogPost
+    template_name = 'books/blog_detail.html'
+
+
+class BlogPostCreateView(CreateView):
+    model = BlogPost
+    fields = ['title', 'content', 'image']
+    template_name = 'books/blog_form.html'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('blog-detail', kwargs={'pk': self.object.pk})
+
+
+class BlogPostUpdateView(UpdateView):
+    model = BlogPost
+    fields = ['title', 'content', 'image']
+    template_name = 'books/blog_form.html'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('blog-detail', kwargs={'pk': self.object.pk})
+
+
+class BlogPostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = BlogPost
+    template_name = 'books/blog_confirm_delete.html'
+    success_url = '/blogs/'
+
+    def test_func(self):
+        blog_post = self.get_object()
+        return self.request.user == blog_post.author
 
 
 class ProductList(APIView):
