@@ -1,11 +1,41 @@
 {% extends 'books/main.html' %}
+{% load static %}
 
 {% block content %}
-<h1>{{ object.title }}</h1>
-<p>{{ object.content }}</p>
-<p>By {{ object.author }} on {{ object.created_at }}</p>
-{% if object.author == request.user %}
-    <a href="{% url 'blog-edit' object.pk %}">Edit</a>
-    <a href="{% url 'blog-delete' object.pk %}">Delete</a>
-{% endif %}
+<link rel="stylesheet" href="{% static 'css2/blog-details.css' %}">
+
+<!-- Main container for the blog post detail -->
+<div class="blog-detail-container">
+    <div class="blog-detail-header">
+        <h1 class="blog-title">{{ object.title }}</h1>
+        <p class="blog-meta">By {{ object.author }} | {{ object.created_at|date:"F j, Y" }}</p>
+    </div>
+
+    <!-- Image with hover effect -->
+    <div class="blog-detail-image">
+        {% if object.image %}
+        <div class="image-container">
+            <img src="{{ object.image.url }}" alt="{{ object.title }}" class="blog-image">
+        </div>
+        {% else %}
+        <div class="image-container">
+            <img src="{% static 'images/modern-book-graphic-design-vector-illustration-flat-vector-style_1120563-33587.avif' %}" alt="Default Image" class="blog-image">
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Blog Content -->
+    <div class="blog-detail-content">
+        <p>{{ object.content }}</p>
+    </div>
+
+    <!-- Actions for author (Edit/Delete buttons) -->
+    {% if object.author == request.user %}
+    <div class="blog-actions">
+        <a href="{% url 'blog-edit' object.pk %}" class="btn btn-primary">Edit</a>
+        <a href="{% url 'blog-delete' object.pk %}" class="btn btn-danger">Delete</a>
+    </div>
+    {% endif %}
+</div>
+
 {% endblock %}
