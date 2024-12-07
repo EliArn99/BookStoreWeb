@@ -1,11 +1,55 @@
-{% extends 'books/main.html' %}
+{#{% extends 'books/main.html' %}#}
+{##}
+{#{% block content %}#}
+{#<h1>Delete Blog Post</h1>#}
+{#<p>Are you sure you want to delete the blog post titled "<strong>{{ object.title }}</strong>"?</p>#}
+{#<form method="post">#}
+{#    {% csrf_token %}#}
+{#    <button type="submit" class="btn btn-danger">Yes, Delete</button>#}
+{#    <a href="{% url 'blog-detail' object.pk %}" class="btn btn-secondary">Cancel</a>#}
+{#</form>#}
+{#{% endblock %}#}
 
+{% extends 'books/main.html' %}
+{% load static %}
 {% block content %}
-<h1>Delete Blog Post</h1>
-<p>Are you sure you want to delete the blog post titled "<strong>{{ object.title }}</strong>"?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Yes, Delete</button>
-    <a href="{% url 'blog-detail' object.pk %}" class="btn btn-secondary">Cancel</a>
-</form>
+<link rel="stylesheet" href="{% static 'css2/blog-delete.css' %}">
+
+<section class="deletePage">
+    <div class="container mt-4">
+        <fieldset>
+            <legend class="text-danger">Delete Blog Post</legend>
+            <div class="delete-container shadow p-4 rounded bg-light">
+                <!-- Display Blog Details -->
+                <label for="title">Blog Title:</label>
+                <input id="title" name="title" type="text" class="form-control mb-3" value="{{ object.title }}" disabled readonly>
+
+                <label for="author">Author:</label>
+                <input id="author" name="author" type="text" class="form-control mb-3" value="{{ object.author }}" disabled readonly>
+
+                <label for="created_at">Created At:</label>
+                <input id="created_at" name="created_at" type="text" class="form-control mb-3" value="{{ object.created_at|date:'F j, Y' }}" disabled readonly>
+
+                <label for="content">Content:</label>
+                <textarea id="content" name="content" class="form-control mb-3" rows="5" disabled readonly>{{ object.content }}</textarea>
+
+                {% if object.image %}
+                <label for="image">Image:</label>
+                <div class="text-center mb-3">
+                    <img src="{{ object.image.url }}" alt="{{ object.title }}" class="img-fluid rounded shadow">
+                </div>
+                {% endif %}
+
+                <!-- Confirmation Buttons -->
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-danger px-4">Yes, Delete</button>
+                        <a href="{% url 'blog-detail' object.pk %}" class="btn btn-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+    </div>
+</section>
 {% endblock %}
