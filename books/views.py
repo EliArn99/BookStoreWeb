@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
 
-from BookWeb_demo.books.models import OrderItem, ShippingAddress, Customer, Book
+from BookWeb_demo.books.models import OrderItem, ShippingAddress, Customer
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import CustomUserCreationForm, BlogPostForm, CustomerForm, OrderForm, ProductForm
@@ -285,7 +285,6 @@ class BlogPostViewSet(ModelViewSet):
     serializer_class = BlogPostSerializer
 
 
-class BookDetailView(DetailView):
-    model = Book
-    template_name = 'books/book-details.html'
-    context_object_name = 'book'
+
+
+
