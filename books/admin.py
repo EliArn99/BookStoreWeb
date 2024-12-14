@@ -43,9 +43,12 @@ class ShippingAddressAdmin(admin.ModelAdmin):
 # Customizing BlogPost Admin
 
 
+
+
 @admin.register(BlogPost)
 class BlogPostAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'created_at', 'updated_at')
-    search_fields = ('title', 'content')
-    list_filter = ('author', 'created_at')
-    ordering = ('-created_at',)
+    list_display = ('title', 'author', 'created_at')
+
+    def has_delete_permission(self, request, obj=None):
+        # Само суперпотребителите могат да трият
+        return request.user.is_superuser
