@@ -7,14 +7,17 @@ from .views import (
     BlogPostCreateView,
     BlogPostUpdateView,
     BlogPostDeleteView,
-    ProfileDetailView
+    ProfileDetailView, ProductList, BlogPostList,
 )
+
+
+
 
 urlpatterns = [
     path('', views.store, name='store'),
     path('cart/', views.cart, name='cart'),
     path('checkout/', views.checkout, name='checkout'),
-    path('profile/', ProfileDetailView.as_view(), name='profile-detail'),  # Profile details
+    path('profile/', ProfileDetailView.as_view(), name='profile-detail'),
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
@@ -26,6 +29,14 @@ urlpatterns = [
     path('blogs/new/', BlogPostCreateView.as_view(), name='blog-create'),
     path('blogs/<int:pk>/edit/', BlogPostUpdateView.as_view(), name='blog-edit'),
     path('blogs/<int:pk>/delete/', BlogPostDeleteView.as_view(), name='blog-delete'),
+
+    path('order/manage/<int:pk>/', views.manage_order, name='manage-order'),
+    path('product/manage/<int:pk>/', views.manage_product, name='manage-product'),
+    path('customer/update/<int:pk>/', views.update_customer, name='update-customer'),
+
+    path('products/', ProductList.as_view(), name='product-list'),
+    path('blogposts/', BlogPostList.as_view(), name='blogpost-list'),
+
 
 
 ]
