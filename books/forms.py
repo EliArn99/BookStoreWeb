@@ -10,7 +10,7 @@ class CustomUserCreationForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2']
         help_texts = {
-            'username': None,  # Remove help text for username
+            'username': None,
         }
         error_messages = {
             'password1': {
@@ -27,7 +27,8 @@ class CustomUserCreationForm(UserCreationForm):
 class BlogPostForm(forms.ModelForm):
     class Meta:
         model = BlogPost
-        fields = ['title', 'content']
+        fields = ['title', 'content', 'image']
+
 
 
 class OrderForm(forms.ModelForm):
@@ -46,10 +47,13 @@ class OrderForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'price', 'digital', 'image']
-        widgets = {
-            'price': forms.NumberInput(attrs={'min': 0, 'step': '0.01'}),
-        }
+        fields = ['name', 'price', 'digital']
+
+    def clean_price(self):
+        price = self.cleaned_data.get('price')
+        if price < 0:
+            raise forms.ValidationError("Price cannot be negative.")
+        return price
 
 
 class CustomerForm(forms.ModelForm):
