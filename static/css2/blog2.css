@@ -1,0 +1,120 @@
+
+/* Blog Header */
+.featured_boks h1 {
+    text-align: center;
+    font-size: 3rem;
+    color: #089da1;
+    margin-bottom: 10px;
+}
+
+.featured_boks .blog-description {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 40px;
+}
+
+/* Featured Post Section */
+.featured_post_card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.featured_post_card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.featured_post_img img {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 10px;
+}
+
+/* Blog Cards */
+.featured_book_box {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.featured_book_card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.featured_book_card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.featured_book_card img {
+    width: 150px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.featured_book_card h2 {
+    font-size: 1.5rem;
+    color: #089da1;
+    margin-bottom: 10px;
+}
+
+.featured_book_card .writer,
+.featured_book_card .categories {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.featured_book_card .book_price {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.featured_book_card .f_btn {
+    padding: 10px 20px;
+    background-color: #089da1;
+    color: white;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.featured_book_card .f_btn:hover {
+    background-color: #077f84;
+}
+
+/* Footer */
+.blog-footer {
+    background: #f8f9fa;
+    color: #555;
+    padding: 20px;
+    text-align: center;
+}
+
+.blog-footer .back-to-top {
+    color: #089da1;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.blog-footer .back-to-top:hover {
+    color: #077f84;
+    text-decoration: underline;
+}

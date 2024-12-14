@@ -1,0 +1,139 @@
+/* Edit Blog Page */
+.editPage {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #ffffff, #f2f2f2);
+    border-radius: 15px;
+}
+
+/* Card container for edit page */
+.edit-container {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.edit-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Heading and form legend */
+legend {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #3498db;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Label and Input Styles */
+label {
+    font-weight: 600;
+    color: #333;
+    display: block;
+    margin-bottom: 10px;
+}
+
+input,
+textarea {
+    width: 100%;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 15px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+input[disabled],
+textarea[disabled] {
+    background-color: #e0e0e0;
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+/* Textarea styling */
+textarea {
+    resize: vertical;
+}
+
+/* Image Styling */
+img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons styling */
+button {
+    font-size: 1.1rem;
+    font-weight: bold;
+    padding: 12px 25px;
+    border-radius: 30px;
+    transition: background-color 0.3s, transform 0.2s ease, box-shadow 0.3s;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Save Changes Button */
+.btn-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+/* Cancel Button */
+.btn-secondary {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border-color: #ccc;
+}
+
+.btn-secondary:hover {
+    background-color: #e2e6ea;
+    color: #495057;
+    border-color: #dae0e5;
+}
+
+/* Flex container for buttons */
+.d-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Responsive Design for smaller screens */
+@media (max-width: 768px) {
+    .edit-container {
+        padding: 20px;
+    }
+
+    legend {
+        font-size: 1.6rem;
+    }
+
+    input,
+    textarea {
+        font-size: 1rem;
+    }
+
+    button {
+        font-size: 1rem;
+    }
+}
