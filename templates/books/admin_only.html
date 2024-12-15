@@ -1,7 +1,0 @@
-{% if user.is_authenticated %}
-    {% if user.is_superuser %}
-        <a href="{% url 'admin:app_product_add' %}">Add Product (Admin Only)</a>
-    {% elif user.is_staff %}
-        <a href="{% url 'staff_dashboard' %}">Staff Dashboard</a>
-    {% endif %}
-{% endif %}
