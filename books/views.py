@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -7,6 +8,7 @@ from rest_framework.viewsets import ModelViewSet
 from BookWeb_demo.books.models import OrderItem, ShippingAddress, Customer
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+
 from .forms import CustomUserCreationForm, BlogPostForm, CustomerForm, OrderForm, ProductForm
 import json
 import datetime
@@ -125,27 +127,70 @@ def processOrder(request):
     if request.user.is_authenticated:
         customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        total = float(data['form']['total'])
+        order.transaction_id = transaction_id
+        if total == order.get_cart_total:
+            order.complete = True
+        order.save()
     else:
-        customer, order = guestOrder(request, data)
-
-    total = float(data['form']['total'])
-    order.transaction_id = transaction_id
-
-    if total == order.get_cart_total:
-        order.complete = True
-    order.save()
-
-    if order.shipping == True:
-        ShippingAddress.objects.create(
-            customer=customer,
-            order=order,
-            address=data['shipping']['address'],
-            city=data['shipping']['city'],
-            state=data['shipping']['state'],
-            zipcode=data['shipping']['zipcode'],
-        )
+        print('User is not logged in')
 
     return JsonResponse('Payment submitted..', safe=False)
+
+
+# def processOrder(request):
+#     transaction_id = datetime.datetime.now().timestamp()
+#     data = json.loads(request.body)
+#
+#     if request.user.is_authenticated:
+#         customer = request.user.customer
+#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
+#
+#     else:
+#         print('COOKIES:', request.COOKIES)
+#         name = data['form']['name']
+#         email = data['form']['email']
+#
+#         cookieData = cookieCart(request)
+#         items = cookieData['items']
+#
+#         customer, created = Customer.objects.get_or_create(
+#             email=email,
+#         )
+#         customer.name = name
+#         customer.save()
+#
+#         order = Order.objects.create(
+#             customer=customer,
+#             complete=False,
+#         )
+#
+#         for item in items:
+#             product = Product.objects.get(id=item['id'])
+#             orderItem = OrderItem.objects.create(
+#                 product=product,
+#                 order=order,
+#                 quantity=item['quantity'],
+#             )
+#
+#     total = float(data['form']['total'])
+#     order.transaction_id = transaction_id
+#
+#     if total == order.get_cart_total:
+#         order.complete = True
+#     order.save()
+#
+#     if order.shipping == True:
+#         ShippingAddress.objects.create(
+#             customer=customer,
+#             order=order,
+#             address=data['shipping']['address'],
+#             city=data['shipping']['city'],
+#             state=data['shipping']['state'],
+#             zipcode=data['shipping']['zipcode'],
+#         )
+#
+#     return JsonResponse('Payment submitted..', safe=False)
 
 
 def manage_order(request, pk=None):
@@ -283,8 +328,3 @@ class ProductViewSet(ModelViewSet):
 class BlogPostViewSet(ModelViewSet):
     queryset = BlogPost.objects.all()
     serializer_class = BlogPostSerializer
-
-
-
-
-
