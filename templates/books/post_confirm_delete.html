@@ -1,0 +1,11 @@
+{% extends 'books/main.html' %}
+
+{% block content %}
+<h1>Delete Blog Post</h1>
+<p>Are you sure you want to delete the blog post titled "<strong>{{ object.title }}</strong>"?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="{% url 'blog-detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

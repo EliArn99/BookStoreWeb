@@ -1,0 +1,46 @@
+{% extends 'books/main.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css2/blog-details.css' %}">
+
+<!-- Main container for the blog post detail -->
+<div class="blog-detail-container">
+    <div class="blog-detail-header text-center">
+        <h1 class="blog-title">{{ object.title }}</h1>
+        <p class="blog-meta">
+            By <span class="text-highlight">{{ object.author|default:"Anonymous" }}</span>
+            | {{ object.created_at|date:"F j, Y" }}
+        </p>
+    </div>
+
+    <!-- Blog Image -->
+    <div class="blog-detail-image">
+        <div class="image-container">
+            {% if object.image %}
+            <img src="{{ object.image.url }}" alt="{{ object.title }}" class="blog-image">
+            {% else %}
+            <img src="{% static 'images/modern-book-graphic-design-vector-illustration-flat-vector-style_1120563-33587.avif' %}" alt="Default Image" class="blog-image">
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Blog Content -->
+    <div class="blog-detail-content">
+        <p>{{ object.content|linebreaks }}</p>
+    </div>
+
+    <!-- Actions for Author (Edit/Delete Buttons) -->
+    {% if object.author == request.user %}
+    <div class="blog-actions text-center">
+        <a href="{% url 'blog-edit' object.pk %}" class="btn btn-primary action-btn">Edit</a>
+        <a href="{% url 'blog-delete' object.pk %}" class="btn btn-danger action-btn">Delete</a>
+    </div>
+    {% endif %}
+
+    <!-- Back to Blog List -->
+    <div class="back-to-blog text-center">
+        <a href="{% url 'blog-list' %}" class="btn btn-outline-secondary">Back to Blog</a>
+    </div>
+</div>
+{% endblock %}

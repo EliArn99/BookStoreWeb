@@ -1,0 +1,73 @@
+{#{% extends 'books/main.html' %}#}
+{#{% load static %}#}
+{#{% block content %}#}
+{#<link rel="stylesheet" href="{% static 'css2/blog2.css' %}">#}
+{##}
+{#<div class="blog-container">#}
+{#    <!-- Blog Header -->#}
+{#    <header class="blog-header">#}
+{#        <h1>Welcome to Your Personal Blog :)</h1>#}
+{#        <p>Stay updated with the latest posts, tips, and news</p>#}
+{#    </header>#}
+{##}
+{#    <div class="content-wrapper">#}
+{#        <!-- Main Blog Section -->#}
+{#        <section class="blog-content">#}
+{#            <!-- Featured Post Section -->#}
+{#            <div class="featured-post">#}
+{#                <img src="{% static 'images/harry-potter-and-the-chamber-of-secrets-30.jpg' %}"#}
+{#                     alt="Featured Post Image" class="featured-image">#}
+{#                <div class="featured-text">#}
+{#                    <h2>Blog Post Title</h2>#}
+{#                    <p class="post-excerpt">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin a dolor eget nulla tempor...</p>#}
+{#                    <a href="#" class="read-more-button">Read More</a>#}
+{#                </div>#}
+{#            </div>#}
+{##}
+{#            <!-- Blog Post Previews -->#}
+{#            <div class="blog-posts">#}
+{#                {% for post in posts %}#}
+{#                <div class="post-preview">#}
+{#                    <img src="{{ post.image_url }}" alt="Post Image" class="post-image">#}
+{#                    <h3 class="post-title">{{ post.title }}</h3>#}
+{#                    <p class="post-excerpt">{{ post.excerpt }}</p>#}
+{#                    <a href="{{ post.get_absolute_url }}" class="read-more-button">Read More</a>#}
+{#                </div>#}
+{#                {% endfor %}#}
+{#            </div>#}
+{#        </section>#}
+{##}
+{#        <!-- Sidebar Section -->#}
+{#        <aside class="sidebar">#}
+{#            <div class="search-bar">#}
+{#                <input type="text" placeholder="Search posts..." />#}
+{#                <button type="button">Search</button>#}
+{#            </div>#}
+{##}
+{#            <h3>Recent Posts</h3>#}
+{#            <ul>#}
+{#                {% for recent_post in recent_posts %}#}
+{#                <li>#}
+{#                    <a href="{{ recent_post.get_absolute_url }}">{{ recent_post.title }}</a>#}
+{#                </li>#}
+{#                {% endfor %}#}
+{#            </ul>#}
+{##}
+{#            <h3>Categories</h3>#}
+{#            <ul>#}
+{#                {% for category in categories %}#}
+{#                <li>#}
+{#                    <a href="#">{{ category.name }}</a>#}
+{#                </li>#}
+{#                {% endfor %}#}
+{#            </ul>#}
+{#        </aside>#}
+{#    </div>#}
+{#</div>#}
+{##}
+{#<footer class="blog-footer">#}
+{#    <p>&copy; 2024 Your Blog. All rights reserved. | <a href="#">Privacy Policy</a></p>#}
+{#    <a href="#top" class="back-to-top">Back to Top</a>#}
+{#</footer>#}
+{##}
+{#{% endblock %}#}
