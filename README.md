@@ -20,6 +20,5 @@ A web application built using Django Framework, featuring user authentication, e
 ### Prerequisites
 - Python 3.8 or higher
 - PostgreSQL
-- Virtualenv (optional but recommended)
 
----
+
