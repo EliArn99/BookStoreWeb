@@ -152,6 +152,6 @@ Follow these steps to get the BookStore Web App running on your local machine:
 
 ## 🧪 Running Tests
 
-To run the project's unit and integration tests (which you've written in `tests.py`), use the following command:
+To run the project's unit and integration tests, use the following command:
 ```bash
 python manage.py test
