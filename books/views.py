@@ -102,9 +102,7 @@ def about_us(request):
 
 
 def cart(request):
-    data = cartData(request)
-    cartItems = data['cartItems']
-    order = data['order']
+	@@ -49,228 +108,283 @@ def cart(request):
     items = data['items']
 
     context = {'items': items, 'order': order, 'cartItems': cartItems}
@@ -388,3 +386,6 @@ def inventory_report_view(request):
         'low_stock_books': low_stock_books,
     }
     return render(request, 'admin/inventory_report.html', context)
+
+
+
